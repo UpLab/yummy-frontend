@@ -11,6 +11,7 @@ import SignUp from '../pages/SignUp';
 import AuthLayout from '../components/layouts/AuthLayout';
 import paths from './paths';
 import AppLayout from '../components/layouts/AppLayout';
+import AuthManager from '../services/AuthManager';
 
 const authRoutes = [
   {
@@ -38,26 +39,30 @@ export default class RootRouter extends Component {
     super(props);
 
     this.state = {
-      loggedIn: false,
+      loggedIn: AuthManager.isLoggedIn(),
     };
   }
 
-  login = () => {
-    this.setState({ loggedIn: true });
-  };
+  componentDidMount() {
+    this.subscriber = (token) => {
+      this.setState({ loggedIn: !!token });
+    };
+    AuthManager.subscribe(this.subscriber);
+  }
 
-  logout = () => {
-    this.setState({ loggedIn: false });
-  };
+  componentWillUnmount() {
+    AuthManager.unsubscribe(this.subscriber);
+  }
 
   render() {
     const { loggedIn } = this.state;
+
     return (
       <Router>
         {/* A <Switch> looks through its children <Route>s and
               renders the first one that matches the current URL. */}
         {loggedIn ? (
-          <AppLayout logout={this.logout}>
+          <AppLayout>
             <Switch>
               {appRoutes.map(({ path, Component: C, exact }) => (
                 <Route exact={exact} path={path}>

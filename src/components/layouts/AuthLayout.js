@@ -1,8 +1,9 @@
 import { Nav, Navbar, Container, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import paths from '../../router/paths';
+import AuthManager from '../../services/AuthManager';
 
-export default function AuthLayout({ children, login }) {
+export default function AuthLayout({ children }) {
   return (
     <>
       <Navbar bg="light" expand="lg">
@@ -18,7 +19,9 @@ export default function AuthLayout({ children, login }) {
             <Nav.Link as={Link} to={paths.signUp}>
               Sign up
             </Nav.Link> */}
-            <Button onClick={login}>Login</Button>
+            <Button onClick={() => AuthManager.login('hardcoded_token')}>
+              Login
+            </Button>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
