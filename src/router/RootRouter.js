@@ -44,14 +44,19 @@ export default class RootRouter extends Component {
   }
 
   componentDidMount() {
-    this.subscriber = (token) => {
-      this.setState({ loggedIn: !!token });
-    };
-    AuthManager.subscribe(this.subscriber);
+    this.unsubscribeFromLoginStatusChange = AuthManager.onLoginStatusChange(
+      (token) => {
+        this.setState({ loggedIn: !!token });
+      }
+    );
+    this.unsubscribeFromOnLogin = AuthManager.onLogin(() => {
+      console.log('User was logged in!');
+    });
   }
 
   componentWillUnmount() {
-    AuthManager.unsubscribe(this.subscriber);
+    this.unsubscribeFromLoginStatusChange();
+    this.unsubscribeFromOnLogin();
   }
 
   render() {

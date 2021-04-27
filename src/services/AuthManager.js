@@ -1,7 +1,15 @@
+import EventEmitter from 'events';
+
 class AuthManager {
   tokenKey = 'YUMMY_TOKEN';
 
-  subscribers = [];
+  emitter = new EventEmitter();
+
+  eventTypes = {
+    LOGIN_STATUS_CHANGED: 'LOGIN_STATUS_CHANGED',
+    LOGIN: 'LOGIN',
+    LOGOUT: 'LOGOUT',
+  };
 
   isLoggedIn() {
     const token = localStorage.getItem(this.tokenKey);
@@ -10,24 +18,40 @@ class AuthManager {
 
   login(token) {
     localStorage.setItem(this.tokenKey, token);
-    this.notifySubscribers(token);
+
+    this.emitter.emit(this.eventTypes.LOGIN_STATUS_CHANGED, true);
+    this.emitter.emit(this.eventTypes.LOGIN);
   }
 
   logout() {
     localStorage.removeItem(this.tokenKey);
-    this.notifySubscribers(null);
+
+    this.emitter.emit(this.eventTypes.LOGIN_STATUS_CHANGED, false);
+    this.emitter.emit(this.eventTypes.LOGOUT);
   }
 
-  subscribe(cb) {
-    this.subscribers.push(cb);
+  onLoginStatusChange(cb) {
+    this.emitter.on(this.eventTypes.LOGIN_STATUS_CHANGED, cb);
+
+    return () => {
+      this.emitter.off(this.eventTypes.LOGIN_STATUS_CHANGED, cb);
+    };
   }
 
-  unsubscribe(cb) {
-    this.subscribers = this.subscribers.filter((sub) => sub !== cb);
+  onLogin(cb) {
+    this.emitter.on(this.eventTypes.LOGIN, cb);
+
+    return () => {
+      this.emitter.off(this.eventTypes.LOGIN, cb);
+    };
   }
 
-  notifySubscribers(data) {
-    this.subscribers.forEach((cb) => cb(data));
+  onLogout(cb) {
+    this.emitter.on(this.eventTypes.LOGOUT, cb);
+
+    return () => {
+      this.emitter.off(this.eventTypes.LOGOUT, cb);
+    };
   }
 }
 
