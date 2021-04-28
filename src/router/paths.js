@@ -3,6 +3,7 @@ const paths = {
   login: '/login',
   signUp: '/sign-up',
   myRecipes: '/recipes',
+  recipeDetails: '/recipes/:id',
   profile: '/profile',
 };
 

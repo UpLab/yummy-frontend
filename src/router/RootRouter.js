@@ -8,6 +8,7 @@ import {
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import SignUp from '../pages/SignUp';
+import RecipeDetails from '../pages/RecipeDetails';
 import AuthLayout from '../components/layouts/AuthLayout';
 import paths from './paths';
 import AppLayout from '../components/layouts/AppLayout';
@@ -30,6 +31,11 @@ const appRoutes = [
   {
     path: paths.myRecipes,
     Component: Home,
+    exact: true,
+  },
+  {
+    path: paths.recipeDetails,
+    Component: RecipeDetails,
     exact: true,
   },
 ];
@@ -70,7 +76,7 @@ export default class RootRouter extends Component {
           <AppLayout>
             <Switch>
               {appRoutes.map(({ path, Component: C, exact }) => (
-                <Route exact={exact} path={path}>
+                <Route key={path} exact={exact} path={path}>
                   <C />
                 </Route>
               ))}
@@ -81,7 +87,7 @@ export default class RootRouter extends Component {
           <AuthLayout login={this.login}>
             <Switch>
               {authRoutes.map(({ path, Component: C, exact }) => (
-                <Route exact={exact} path={path}>
+                <Route key={path} exact={exact} path={path}>
                   <C />
                 </Route>
               ))}
