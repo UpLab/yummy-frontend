@@ -6,20 +6,22 @@ export default function AuthLayout({ children }) {
   return (
     <>
       <Navbar bg="light" expand="lg">
-        <Navbar.Brand as={Link} to={paths.home}>
-          Yummy (auth)
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mr-auto">
-            <Nav.Link as={Link} to={paths.login}>
-              Login
-            </Nav.Link>
-            {/* <Nav.Link as={Link} to={paths.signUp}>
+        <Container>
+          <Navbar.Brand as={Link} to={paths.home}>
+            Yummy
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="ml-auto">
+              <Nav.Link as={Link} to={paths.login}>
+                Login
+              </Nav.Link>
+              {/* <Nav.Link as={Link} to={paths.signUp}>
               Sign up
             </Nav.Link> */}
-          </Nav>
-        </Navbar.Collapse>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
       </Navbar>
       <Container>{children}</Container>
     </>
