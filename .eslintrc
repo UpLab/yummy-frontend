@@ -13,6 +13,7 @@
     "react/prop-types": 0,
     "no-unused-vars": 1,
     "no-use-before-define": ["error", { "functions": false, "classes": false, "variables": true }],
-    "no-underscore-dangle": 0
+    "no-underscore-dangle": 0,
+    "class-methods-use-this": 0
   }
 }

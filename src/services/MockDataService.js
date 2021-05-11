@@ -1,8 +1,12 @@
-import { recipeListFactory } from '../__mocks__/recipe';
+import { recipeListFactory, recipeFactory } from '../__mocks__/recipe';
 
 class MockDataService {
   constructor() {
     this.recipeList = recipeListFactory();
+  }
+
+  generateRecipe() {
+    return recipeFactory();
   }
 
   getRecipes() {
