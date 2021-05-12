@@ -1,6 +1,7 @@
+/* eslint-disable no-nested-ternary */
 import React from 'react';
-import { Row, Col, Button } from 'react-bootstrap';
-import RecipeListCard from '../components/recipe/RecipeListCard';
+import { Button } from 'react-bootstrap';
+import RecipeListGrid from '../components/recipe/RecipeListGrid';
 import MockDataService from '../services/MockDataService';
 
 export default class Home extends React.Component {
@@ -8,7 +9,15 @@ export default class Home extends React.Component {
     super(props);
     this.state = {
       recipeList: [],
+      hasError: false,
     };
+  }
+
+  componentDidCatch(error, info) {
+    console.log(error, info);
+    this.setState({
+      hasError: true,
+    });
   }
 
   addRecipe = () => {
@@ -20,19 +29,28 @@ export default class Home extends React.Component {
     });
   };
 
+  resetRecipes = () => {
+    this.setState({ recipeList: [], hasError: false });
+  };
+
   render() {
-    const { recipeList } = this.state;
+    const { recipeList, hasError } = this.state;
     return (
       <>
         <h1>Recipe List</h1>
         <Button onClick={this.addRecipe}>Add recipe</Button>
-        <Row>
-          {recipeList.map((recipe) => (
-            <Col key={recipe._id} lg="3" md="4" sm="6" xs="6" className="mb-4">
-              <RecipeListCard recipe={recipe} />
-            </Col>
-          ))}
-        </Row>
+        <Button onClick={this.resetRecipes}>Reset</Button>
+        {recipeList.length ? (
+          hasError ? (
+            <div>Oops. Component crashed. Please reload page</div>
+          ) : (
+            <RecipeListGrid recipeList={recipeList} />
+          )
+        ) : (
+          <div>
+            No recipes in your list. Please click on "Add recipe" button
+          </div>
+        )}
       </>
     );
   }
