@@ -39,42 +39,46 @@ export default class Home extends React.Component {
 
   addRecipe = async () => {
     this.setState({ isAddingRecipe: true });
-    // await wait(3000);
+    await wait(1000);
     const recipe = MockDataService.generateRecipe();
-    axios({
-      method: 'post',
-      url: '/api/recipes/create',
-      data: recipe,
-    })
-      .then(() => {
-        return this.fetchRecipes();
-      })
-      .catch((error) => {
-        const msg = error.message;
-        toast.error(msg);
-      })
-      .finally(() => {
-        this.setState({ isAddingRecipe: false });
+    try {
+      const result = await axios({
+        method: 'post',
+        url: '/api/recipes/create',
+        data: recipe,
       });
+      console.log('Result: ', result);
+      await this.fetchRecipes();
+    } catch (error) {
+      const msg = error.message;
+      toast.error(msg);
+    } finally {
+      this.setState({ isAddingRecipe: false });
+    }
   };
+
+  // addTwo = () => {
+  //   console.log('adding recipe 1');
+  //   this.addRecipe().then(() => {
+  //     console.log('adding recipe 2');
+  //     this.addRecipe();
+  //   });
+  // }
 
   resetRecipes = async () => {
     this.setState({ isResettingRecipes: true });
-    // await wait(3000);
-    axios({
-      method: 'post',
-      url: '/api/recipes/reset',
-    })
-      .then(() => {
-        return this.fetchRecipes();
-      })
-      .catch((error) => {
-        const msg = error.message;
-        toast.error(msg);
-      })
-      .finally(() => {
-        this.setState({ isResettingRecipes: false });
+    try {
+      await axios({
+        method: 'post',
+        url: '/api/recipes/reset',
       });
+      await this.fetchRecipes();
+    } catch (error) {
+      const msg = error.message;
+      toast.error(msg);
+    } finally {
+      this.setState({ isResettingRecipes: false });
+    }
   };
 
   render() {
