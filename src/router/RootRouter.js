@@ -9,6 +9,7 @@ import Home from '../pages/Home';
 import Login from '../pages/Login';
 import SignUp from '../pages/SignUp';
 import RecipeDetails from '../pages/RecipeDetails';
+import HooksDemo from '../pages/HooksDemo';
 import AuthLayout from '../components/layouts/AuthLayout';
 import paths from './paths';
 import AppLayout from '../components/layouts/AppLayout';
@@ -23,6 +24,11 @@ const authRoutes = [
   {
     path: paths.signUp,
     Component: SignUp,
+    exact: true,
+  },
+  {
+    path: paths.hooksDemo,
+    Component: HooksDemo,
     exact: true,
   },
 ];

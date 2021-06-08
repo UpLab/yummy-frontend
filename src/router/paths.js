@@ -5,6 +5,7 @@ const paths = {
   myRecipes: '/recipes',
   recipeDetails: '/recipes/:id',
   profile: '/profile',
+  hooksDemo: '/hooks',
 };
 
 export default paths;
