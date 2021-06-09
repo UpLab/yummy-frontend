@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Alert, Button, Spinner } from 'react-bootstrap';
 import { toast } from 'react-toastify';
@@ -10,35 +10,32 @@ const wait = (timeout) =>
   new Promise((resolve) => {
     setTimeout(resolve, timeout);
   });
-export default class Home extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      error: null,
-      isLoading: false,
-      recipeList: [],
-      isAddingRecipe: false,
-    };
-  }
 
-  componentDidMount() {
-    this.fetchRecipes();
-  }
+export default function Home() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [recipeList, setRecipeList] = useState([]);
+  const [error, setError] = useState(null);
 
-  fetchRecipes = () => {
-    this.setState({ isLoading: true });
+  const fetchRecipes = () => {
+    setIsLoading(true);
     return axios('/api/recipes')
       .then((response) => {
-        this.setState({ recipeList: response.data, isLoading: false });
+        setIsLoading(false);
+        setRecipeList(response.data);
       })
-      .catch((error) => {
-        const msg = error.message;
-        this.setState({ error: msg, isLoading: false });
+      .catch((e) => {
+        const msg = e.message;
+        setIsLoading(false);
+        setError(msg);
       });
   };
+  useEffect(() => {
+    fetchRecipes();
+  }, []);
 
-  addRecipe = async () => {
-    this.setState({ isAddingRecipe: true });
+  const [isAddingRecipe, setIsAddingRecipe] = useState(false);
+  const addRecipe = async () => {
+    setIsAddingRecipe(true);
     await wait(1000);
     const recipe = MockDataService.generateRecipe();
     try {
@@ -48,98 +45,81 @@ export default class Home extends React.Component {
         data: recipe,
       });
       console.log('Result: ', result);
-      await this.fetchRecipes();
-    } catch (error) {
-      const msg = error.message;
+      await fetchRecipes();
+    } catch (e) {
+      const msg = e.message;
       toast.error(msg);
     } finally {
-      this.setState({ isAddingRecipe: false });
+      setIsAddingRecipe(false);
     }
   };
 
-  // addTwo = () => {
-  //   console.log('adding recipe 1');
-  //   this.addRecipe().then(() => {
-  //     console.log('adding recipe 2');
-  //     this.addRecipe();
-  //   });
-  // }
-
-  resetRecipes = async () => {
-    this.setState({ isResettingRecipes: true });
+  const [isResettingRecipes, setIsResettingRecipes] = useState(false);
+  const resetRecipes = async () => {
+    setIsResettingRecipes(true);
     try {
       await axios({
         method: 'post',
         url: '/api/recipes/reset',
       });
-      await this.fetchRecipes();
-    } catch (error) {
-      const msg = error.message;
+      fetchRecipes();
+    } catch (e) {
+      const msg = e.message;
       toast.error(msg);
     } finally {
-      this.setState({ isResettingRecipes: false });
+      setIsResettingRecipes(false);
     }
   };
 
-  render() {
-    const {
-      recipeList,
-      isLoading,
-      error,
-      isAddingRecipe,
-      isResettingRecipes,
-    } = this.state;
+  return (
+    <>
+      <h1>Recipe List</h1>
+      {isLoading && !recipeList.length ? (
+        <div>Loading...</div>
+      ) : (
+        <>
+          <Button
+            onClick={addRecipe}
+            disabled={isAddingRecipe || isResettingRecipes}
+          >
+            {isAddingRecipe ? (
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+              />
+            ) : null}{' '}
+            Add recipe
+          </Button>
+          <Button
+            onClick={resetRecipes}
+            disabled={isResettingRecipes || isAddingRecipe}
+          >
+            {isResettingRecipes ? (
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+              />
+            ) : null}{' '}
+            Reset
+          </Button>
 
-    return (
-      <>
-        <h1>Recipe List</h1>
-        {isLoading && !recipeList.length ? (
-          <div>Loading...</div>
-        ) : (
-          <>
-            <Button
-              onClick={this.addRecipe}
-              disabled={isAddingRecipe || isResettingRecipes}
-            >
-              {isAddingRecipe ? (
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />
-              ) : null}{' '}
-              Add recipe
-            </Button>
-            <Button
-              onClick={this.resetRecipes}
-              disabled={isResettingRecipes || isAddingRecipe}
-            >
-              {isResettingRecipes ? (
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />
-              ) : null}{' '}
-              Reset
-            </Button>
+          {error ? <Alert variant="danger">{error}</Alert> : null}
 
-            {error ? <Alert variant="danger">{error}</Alert> : null}
-
-            {recipeList.length ? (
-              <RecipeListGrid recipeList={recipeList} />
-            ) : (
-              <div>
-                No recipes in your list. Please click on "Add recipe" button
-              </div>
-            )}
-          </>
-        )}
-      </>
-    );
-  }
+          {recipeList.length ? (
+            <RecipeListGrid recipeList={recipeList} />
+          ) : (
+            <div>
+              No recipes in your list. Please click on "Add recipe" button
+            </div>
+          )}
+        </>
+      )}
+    </>
+  );
 }
