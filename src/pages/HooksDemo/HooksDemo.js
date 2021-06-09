@@ -3,15 +3,16 @@ import { Button } from 'react-bootstrap';
 import Counter from './components/Counter';
 import Ticker from './components/Ticker';
 import ThemeSwitcher from './components/ThemeSwitcher';
+import MemoDemo from './components/MemoDemo';
 
 export default function HooksDemo() {
   const [tickerVisible, setTickerVisible] = useState(true);
 
   return (
     <div>
-      <Counter />
+      {/* <Counter /> */}
 
-      <div>
+      {/* <div>
         <Button
           variant="outline-primary"
           onClick={() => setTickerVisible((v) => !v)}
@@ -20,14 +21,16 @@ export default function HooksDemo() {
         </Button>
       </div>
 
-      {tickerVisible ? <Ticker /> : null}
-      <ThemeSwitcher />
+      {tickerVisible ? <Ticker /> : null} */}
+      {/* <ThemeSwitcher />  */}
       {/* <ThemeContext.Consumer>
         {(ctx) => {
           console.log('Context consumer', ctx);
           return null;
         }}
-      </ThemeContext.Consumer> */}
+      </ThemeContext.Consumer>
+      */}
+      <MemoDemo />
     </div>
   );
 }
