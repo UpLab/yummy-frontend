@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Alert, Button, Spinner } from 'react-bootstrap';
 import { toast } from 'react-toastify';
@@ -11,75 +11,93 @@ const wait = (timeout) =>
     setTimeout(resolve, timeout);
   });
 
-export default function Home() {
+const noop = () => {};
+
+const useAPIMethod = ({ url, onComplete = noop, debugWaitMS }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [recipeList, setRecipeList] = useState([]);
-  const [error, setError] = useState(null);
-
-  const fetchRecipes = () => {
+  const method = async (data) => {
     setIsLoading(true);
-    return axios('/api/recipes')
-      .then((response) => {
-        setIsLoading(false);
-        setRecipeList(response.data);
-      })
-      .catch((e) => {
-        const msg = e.message;
-        setIsLoading(false);
-        setError(msg);
-      });
-  };
-  useEffect(() => {
-    fetchRecipes();
-  }, []);
-
-  const [isAddingRecipe, setIsAddingRecipe] = useState(false);
-  const addRecipe = async () => {
-    setIsAddingRecipe(true);
-    await wait(1000);
-    const recipe = MockDataService.generateRecipe();
+    if (debugWaitMS) await wait(debugWaitMS);
     try {
       const result = await axios({
         method: 'post',
-        url: '/api/recipes/create',
-        data: recipe,
+        url,
+        data,
       });
-      console.log('Result: ', result);
-      await fetchRecipes();
+      await onComplete(result);
     } catch (e) {
       const msg = e.message;
       toast.error(msg);
     } finally {
-      setIsAddingRecipe(false);
+      setIsLoading(false);
     }
   };
 
-  const [isResettingRecipes, setIsResettingRecipes] = useState(false);
-  const resetRecipes = async () => {
-    setIsResettingRecipes(true);
+  return [method, isLoading];
+};
+
+const useAPIQuery = ({ url, onComplete = noop, debugWaitMS }) => {
+  const [data, setData] = useState();
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const method = useCallback(async () => {
+    setIsLoading(true);
+    if (debugWaitMS) await wait(debugWaitMS);
     try {
-      await axios({
-        method: 'post',
-        url: '/api/recipes/reset',
+      const result = await axios({
+        method: 'get',
+        url,
       });
-      fetchRecipes();
+      setData(result.data);
+      await onComplete(result.data);
     } catch (e) {
       const msg = e.message;
-      toast.error(msg);
+      setError(msg);
     } finally {
-      setIsResettingRecipes(false);
+      setIsLoading(false);
     }
-  };
+  }, [debugWaitMS, onComplete, url]);
+
+  useEffect(() => {
+    console.log('Calling method');
+    method();
+  }, [method]);
+
+  return { data, isLoading, refetch: method, error };
+};
+
+export default function Home() {
+  const {
+    data: recipeList,
+    isLoading,
+    error,
+    refetch: refetchRecipes,
+  } = useAPIQuery({
+    url: '/api/recipes',
+  });
+
+  const [addRecipe, isAddingRecipe] = useAPIMethod({
+    debugWaitMS: 1000,
+    url: '/api/recipes/create',
+    onComplete: refetchRecipes,
+  });
+
+  const [resetRecipes, isResettingRecipes] = useAPIMethod({
+    debugWaitMS: 500,
+    url: '/api/recipes/reset',
+    onComplete: refetchRecipes,
+  });
 
   return (
     <>
       <h1>Recipe List</h1>
-      {isLoading && !recipeList.length ? (
+      {isLoading && !recipeList?.length ? (
         <div>Loading...</div>
       ) : (
         <>
           <Button
-            onClick={addRecipe}
+            onClick={() => addRecipe(MockDataService.generateRecipe())}
             disabled={isAddingRecipe || isResettingRecipes}
           >
             {isAddingRecipe ? (
@@ -94,7 +112,7 @@ export default function Home() {
             Add recipe
           </Button>
           <Button
-            onClick={resetRecipes}
+            onClick={() => resetRecipes()}
             disabled={isResettingRecipes || isAddingRecipe}
           >
             {isResettingRecipes ? (
@@ -110,14 +128,17 @@ export default function Home() {
           </Button>
 
           {error ? <Alert variant="danger">{error}</Alert> : null}
-
-          {recipeList.length ? (
-            <RecipeListGrid recipeList={recipeList} />
-          ) : (
-            <div>
-              No recipes in your list. Please click on "Add recipe" button
-            </div>
-          )}
+          {Array.isArray(recipeList) ? (
+            <>
+              {recipeList.length ? (
+                <RecipeListGrid recipeList={recipeList} />
+              ) : (
+                <div>
+                  No recipes in your list. Please click on "Add recipe" button
+                </div>
+              )}
+            </>
+          ) : null}
         </>
       )}
     </>
