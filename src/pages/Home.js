@@ -13,58 +13,56 @@ const wait = (timeout) =>
 
 const noop = () => {};
 
-const useAPIMethod = ({ url, onComplete = noop, debugWaitMS }) => {
+const useAPIMethod = ({
+  url,
+  method = 'post',
+  onComplete = noop,
+  onError = noop,
+  debugWaitMS,
+}) => {
   const [isLoading, setIsLoading] = useState(false);
-  const method = async (data) => {
-    setIsLoading(true);
-    if (debugWaitMS) await wait(debugWaitMS);
-    try {
-      const result = await axios({
-        method: 'post',
-        url,
-        data,
-      });
-      await onComplete(result);
-    } catch (e) {
-      const msg = e.message;
-      toast.error(msg);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const call = useCallback(
+    async (data) => {
+      setIsLoading(true);
+      if (debugWaitMS) await wait(debugWaitMS);
+      try {
+        const result = await axios({
+          method,
+          url,
+          data,
+        });
+        await onComplete(result.data);
+      } catch (e) {
+        const msg = e.message;
+        onError(msg, e);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [debugWaitMS, method, onComplete, onError, url]
+  );
 
-  return [method, isLoading];
+  return [call, isLoading];
 };
 
-const useAPIQuery = ({ url, onComplete = noop, debugWaitMS }) => {
+const useAPIQuery = ({ url, debugWaitMS }) => {
   const [data, setData] = useState();
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const method = useCallback(async () => {
-    setIsLoading(true);
-    if (debugWaitMS) await wait(debugWaitMS);
-    try {
-      const result = await axios({
-        method: 'get',
-        url,
-      });
-      setData(result.data);
-      await onComplete(result.data);
-    } catch (e) {
-      const msg = e.message;
-      setError(msg);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [debugWaitMS, onComplete, url]);
+  const [fetch, isLoading] = useAPIMethod({
+    method: 'get',
+    url,
+    onComplete: setData,
+    onError: setError,
+    debugWaitMS,
+  });
 
   useEffect(() => {
     console.log('Calling method');
-    method();
-  }, [method]);
+    fetch();
+  }, [fetch]);
 
-  return { data, isLoading, refetch: method, error };
+  return { data, isLoading, refetch: fetch, error };
 };
 
 export default function Home() {
@@ -81,12 +79,18 @@ export default function Home() {
     debugWaitMS: 1000,
     url: '/api/recipes/create',
     onComplete: refetchRecipes,
+    onError: (msg) => {
+      toast.error(msg);
+    },
   });
 
   const [resetRecipes, isResettingRecipes] = useAPIMethod({
     debugWaitMS: 500,
     url: '/api/recipes/reset',
     onComplete: refetchRecipes,
+    onError: (msg) => {
+      toast.error(msg);
+    },
   });
 
   return (
