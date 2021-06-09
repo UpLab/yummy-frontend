@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { Component, useEffect, useState } from 'react';
 import {
   Route,
   BrowserRouter as Router,
@@ -46,62 +46,56 @@ const appRoutes = [
   },
 ];
 
-export default class RootRouter extends Component {
-  constructor(props) {
-    super(props);
+const useIsLoggedIn = () => {
+  const [loggedIn, setLoggedIn] = useState(AuthManager.isLoggedIn());
 
-    this.state = {
-      loggedIn: AuthManager.isLoggedIn(),
-    };
-  }
-
-  componentDidMount() {
-    this.unsubscribeFromLoginStatusChange = AuthManager.onLoginStatusChange(
+  useEffect(() => {
+    const unsubscribeFromLoginStatusChange = AuthManager.onLoginStatusChange(
       (token) => {
-        this.setState({ loggedIn: !!token });
+        setLoggedIn(!!token);
       }
     );
-    this.unsubscribeFromOnLogin = AuthManager.onLogin(() => {
+    const unsubscribeFromOnLogin = AuthManager.onLogin(() => {
       console.log('User was logged in!');
     });
-  }
+    return () => {
+      unsubscribeFromLoginStatusChange();
+      unsubscribeFromOnLogin();
+    };
+  }, []);
+  return loggedIn;
+};
 
-  componentWillUnmount() {
-    this.unsubscribeFromLoginStatusChange();
-    this.unsubscribeFromOnLogin();
-  }
+export default function RootRouter() {
+  const loggedIn = useIsLoggedIn();
 
-  render() {
-    const { loggedIn } = this.state;
-
-    return (
-      <Router>
-        {/* A <Switch> looks through its children <Route>s and
-              renders the first one that matches the current URL. */}
-        {loggedIn ? (
-          <AppLayout>
-            <Switch>
-              {appRoutes.map(({ path, Component: C, exact }) => (
-                <Route key={path} exact={exact} path={path}>
-                  <C />
-                </Route>
-              ))}
-              <Redirect to={paths.myRecipes} />
-            </Switch>
-          </AppLayout>
-        ) : (
-          <AuthLayout login={this.login}>
-            <Switch>
-              {authRoutes.map(({ path, Component: C, exact }) => (
-                <Route key={path} exact={exact} path={path}>
-                  <C />
-                </Route>
-              ))}
-              <Redirect to={paths.login} />
-            </Switch>
-          </AuthLayout>
-        )}
-      </Router>
-    );
-  }
+  return (
+    <Router>
+      {/* A <Switch> looks through its children <Route>s and
+          renders the first one that matches the current URL. */}
+      {loggedIn ? (
+        <AppLayout>
+          <Switch>
+            {appRoutes.map(({ path, Component: C, exact }) => (
+              <Route key={path} exact={exact} path={path}>
+                <C />
+              </Route>
+            ))}
+            <Redirect to={paths.myRecipes} />
+          </Switch>
+        </AppLayout>
+      ) : (
+        <AuthLayout>
+          <Switch>
+            {authRoutes.map(({ path, Component: C, exact }) => (
+              <Route key={path} exact={exact} path={path}>
+                <C />
+              </Route>
+            ))}
+            <Redirect to={paths.login} />
+          </Switch>
+        </AuthLayout>
+      )}
+    </Router>
+  );
 }
