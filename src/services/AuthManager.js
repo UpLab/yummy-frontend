@@ -1,7 +1,10 @@
 import EventEmitter from 'events';
+import jwtDecode from 'jwt-decode';
 
 class AuthManager {
   accessTokenKey = 'YUMMY_ACCESS_TOKEN';
+
+  refreshTokenKey = 'YUMMY_REFRESH_TOKEN';
 
   emitter = new EventEmitter();
 
@@ -16,12 +19,34 @@ class AuthManager {
     return !!token;
   }
 
+  isAccessTokenExpired = () => {
+    const token = this.getAccessToken();
+    if (!token) return null;
+
+    const decoded = jwtDecode(token);
+    const expirationDate = decoded.exp;
+    return new Date().getTime() >= expirationDate * 1000;
+  };
+
   getAccessToken() {
     return localStorage.getItem(this.accessTokenKey);
   }
 
-  login(token) {
-    localStorage.setItem(this.accessTokenKey, token);
+  setAccessToken(accessToken) {
+    localStorage.setItem(this.accessTokenKey, accessToken);
+  }
+
+  getRefreshToken() {
+    return localStorage.getItem(this.refreshTokenKey);
+  }
+
+  setRefreshToken(refreshToken) {
+    localStorage.setItem(this.refreshTokenKey, refreshToken);
+  }
+
+  login({ accessToken, refreshToken }) {
+    this.setAccessToken(accessToken);
+    this.setRefreshToken(refreshToken);
 
     this.emitter.emit(this.eventTypes.LOGIN_STATUS_CHANGED, true);
     this.emitter.emit(this.eventTypes.LOGIN);
@@ -29,6 +54,7 @@ class AuthManager {
 
   logout() {
     localStorage.removeItem(this.accessTokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
 
     this.emitter.emit(this.eventTypes.LOGIN_STATUS_CHANGED, false);
     this.emitter.emit(this.eventTypes.LOGOUT);

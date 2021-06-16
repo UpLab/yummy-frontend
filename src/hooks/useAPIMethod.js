@@ -53,7 +53,7 @@ const useAPIMethod = ({
       } catch (e) {
         const msg = e.message;
         callbacksRef.current.onError(msg, e);
-        throw e;
+        return null;
       } finally {
         setIsLoading(false);
       }
