@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import useAPIMethod from './useAPIMethod';
 
-const useAPIQuery = ({ url, debugWaitMS }) => {
+const useAPIQuery = ({ url, call, debugWaitMS }) => {
   const [data, setData] = useState();
   const [error, setError] = useState(null);
 
@@ -11,9 +11,11 @@ const useAPIQuery = ({ url, debugWaitMS }) => {
     onComplete: setData,
     onError: setError,
     debugWaitMS,
+    call,
   });
 
   useEffect(() => {
+    setError(null);
     fetch();
   }, [fetch]);
 

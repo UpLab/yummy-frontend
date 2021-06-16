@@ -6,6 +6,7 @@ import RecipeListGrid from '../components/recipe/RecipeListGrid';
 import MockDataService from '../services/MockDataService';
 import useAPIQuery from '../hooks/useAPIQuery';
 import useAPIMethod from '../hooks/useAPIMethod';
+import APIService from '../services/APIService';
 
 export default function Home() {
   const {
@@ -14,12 +15,12 @@ export default function Home() {
     error,
     refetch: refetchRecipes,
   } = useAPIQuery({
-    url: '/api/recipes',
+    call: APIService.getRecipeList,
   });
 
   const [addRecipe, isAddingRecipe] = useAPIMethod({
     debugWaitMS: 1000,
-    url: '/api/recipes/create',
+    call: APIService.addRecipe,
     onComplete: refetchRecipes,
     onError: (msg) => {
       toast.error(msg);
@@ -28,7 +29,7 @@ export default function Home() {
 
   const [resetRecipes, isResettingRecipes] = useAPIMethod({
     debugWaitMS: 500,
-    url: '/api/recipes/reset',
+    call: APIService.resetRecipes,
     onComplete: refetchRecipes,
     onError: (msg) => {
       toast.error(msg);

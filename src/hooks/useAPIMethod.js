@@ -12,6 +12,7 @@ const wait = (timeout) =>
 const useAPIMethod = ({
   url,
   method = 'post',
+  call,
   onComplete = noop,
   onError = noop,
   debugWaitMS,
@@ -21,29 +22,38 @@ const useAPIMethod = ({
   const callbacksRef = useRef({
     onComplete,
     onError,
+    call,
   });
 
   useEffect(() => {
     callbacksRef.current = {
       onComplete,
       onError,
+      call,
     };
-  }, [onComplete, onError]);
+  }, [onComplete, onError, call]);
 
-  const call = useCallback(
+  const fn = useCallback(
     async (data) => {
       setIsLoading(true);
       if (debugWaitMS) await wait(debugWaitMS);
       try {
+        if (typeof callbacksRef.current.call === 'function') {
+          const result = await callbacksRef.current.call(data);
+          await callbacksRef.current.onComplete(result);
+          return result;
+        }
         const result = await axios({
           method,
           url,
           data,
         });
         await callbacksRef.current.onComplete(result.data);
+        return result.data;
       } catch (e) {
         const msg = e.message;
         callbacksRef.current.onError(msg, e);
+        throw e;
       } finally {
         setIsLoading(false);
       }
@@ -51,7 +61,7 @@ const useAPIMethod = ({
     [debugWaitMS, method, url]
   );
 
-  return [call, isLoading];
+  return [fn, isLoading];
 };
 
 export default useAPIMethod;

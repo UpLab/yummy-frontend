@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 
 class AuthManager {
-  tokenKey = 'YUMMY_TOKEN';
+  accessTokenKey = 'YUMMY_ACCESS_TOKEN';
 
   emitter = new EventEmitter();
 
@@ -12,19 +12,23 @@ class AuthManager {
   };
 
   isLoggedIn() {
-    const token = localStorage.getItem(this.tokenKey);
+    const token = this.getAccessToken();
     return !!token;
   }
 
+  getAccessToken() {
+    return localStorage.getItem(this.accessTokenKey);
+  }
+
   login(token) {
-    localStorage.setItem(this.tokenKey, token);
+    localStorage.setItem(this.accessTokenKey, token);
 
     this.emitter.emit(this.eventTypes.LOGIN_STATUS_CHANGED, true);
     this.emitter.emit(this.eventTypes.LOGIN);
   }
 
   logout() {
-    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.accessTokenKey);
 
     this.emitter.emit(this.eventTypes.LOGIN_STATUS_CHANGED, false);
     this.emitter.emit(this.eventTypes.LOGOUT);

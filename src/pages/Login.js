@@ -1,8 +1,11 @@
 import { useReducer } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Row, Col, Button, Form } from 'react-bootstrap';
+import { Card, Row, Col, Button, Form, Spinner } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 import AuthManager from '../services/AuthManager';
 import paths from '../router/paths';
+import useAPIMethod from '../hooks/useAPIMethod';
+import APIService from '../services/APIService';
 
 const initialState = {
   email: '',
@@ -31,9 +34,14 @@ export default function Login() {
   const onChangePassword = (e) =>
     dispatch({ type: actionType.CHANGE_PASSWORD, value: e.target.value });
 
-  const onSubmit = () => {
-    console.log(`Logging in as email ${state.email}`);
-    AuthManager.login();
+  const [login, isLoggingIn] = useAPIMethod({
+    call: APIService.login,
+    onError: toast.error,
+  });
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const { email, password } = state;
+    login({ email, password });
   };
   return (
     <Row className="mt-5">
@@ -70,7 +78,21 @@ export default function Login() {
                   placeholder="Password"
                 />
               </Form.Group>
-              <Button variant="primary" type="submit" block>
+              <Button
+                variant="primary"
+                type="submit"
+                block
+                disabled={isLoggingIn}
+              >
+                {isLoggingIn ? (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                ) : null}{' '}
                 Submit
               </Button>
             </Form>
