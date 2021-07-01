@@ -10,6 +10,12 @@ const errors = {
 };
 
 class APIService {
+  #injectResponseMessageToError = (error) => {
+    const message = error.response?.data?.error;
+    // eslint-disable-next-line no-param-reassign
+    if (message) error.message = message;
+  };
+
   #fetch = async (params) => {
     const { url, method, data, _retry = false } = params;
 
@@ -101,8 +107,21 @@ class APIService {
       // AuthManager.login({ accessToken, refreshToken });
       AuthManager.login({ accessToken, refreshToken });
     } catch (error) {
-      // TODO: show human-readable error
-      console.log('Request error', error);
+      this.#injectResponseMessageToError(error);
+      throw error;
+    }
+  };
+
+  createAccount = async ({ email, password }) => {
+    try {
+      await this.#fetch({
+        url: '/api/auth/register',
+        method: 'post',
+        data: { email, password },
+      });
+      await this.login({ email, password });
+    } catch (error) {
+      this.#injectResponseMessageToError(error);
       throw error;
     }
   };
