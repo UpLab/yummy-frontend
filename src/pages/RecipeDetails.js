@@ -1,14 +1,26 @@
 import { useParams } from 'react-router-dom';
 import { Alert } from 'react-bootstrap';
-import MockDataService from '../services/MockDataService';
 import RecipeListCard from '../components/recipe/RecipeListCard';
+import useAPIQuery from '../hooks/useAPIQuery';
+import APIService from '../services/APIService';
 
 export default function RecipeDetails() {
   const params = useParams();
 
-  const recipe = MockDataService.findRecipeById(params.id);
+  const {
+    data: recipe,
+    isLoading,
+    error,
+  } = useAPIQuery({
+    call: () => APIService.getRecipeById(params.id),
+  });
+
+  if (isLoading && !recipe) return <div>Loading...</div>;
   if (!recipe) {
     return <Alert variant="danger">Recipe not found</Alert>;
+  }
+  if (!recipe && error && !isLoading) {
+    return <Alert variant="danger">{error}</Alert>;
   }
   return (
     <p>

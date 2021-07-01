@@ -111,6 +111,10 @@ class APIService {
     return this.#fetch({ url: '/api/recipes', method: 'get' });
   };
 
+  getRecipeById = async (id) => {
+    return this.#fetch({ url: `/api/recipes/${id}`, method: 'get' });
+  };
+
   addRecipe = async (data) => {
     return this.#fetch({ url: '/api/recipes/create', method: 'post', data });
   };
