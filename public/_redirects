@@ -1,1 +1,2 @@
-/api/*  https://yummy-uplab.netlify.app/api/:splat
+/api/*    https://yummy-uplab.netlify.app/api/:splat    200
+/*    /index.html   200
