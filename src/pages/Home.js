@@ -1,9 +1,10 @@
 /* eslint-disable no-nested-ternary */
 import React from 'react';
-import { Alert, Button, Spinner } from 'react-bootstrap';
+import { Alert, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
+import routePaths from '../router/paths';
 import RecipeListGrid from '../components/recipe/RecipeListGrid';
-import MockDataService from '../services/MockDataService';
 import useAPIQuery from '../hooks/useAPIQuery';
 import useAPIMethod from '../hooks/useAPIMethod';
 import APIService from '../services/APIService';
@@ -18,14 +19,14 @@ export default function Home() {
     call: APIService.getRecipeList,
   });
 
-  const [addRecipe, isAddingRecipe] = useAPIMethod({
-    debugWaitMS: 1000,
-    call: APIService.addRecipe,
-    onComplete: refetchRecipes,
-    onError: (msg) => {
-      toast.error(msg);
-    },
-  });
+  // const [addRecipe, isAddingRecipe] = useAPIMethod({
+  //   debugWaitMS: 1000,
+  //   call: APIService.addRecipe,
+  //   onComplete: refetchRecipes,
+  //   onError: (msg) => {
+  //     toast.error(msg);
+  //   },
+  // });
 
   const [resetRecipes, isResettingRecipes] = useAPIMethod({
     debugWaitMS: 500,
@@ -43,34 +44,10 @@ export default function Home() {
         <div>Loading...</div>
       ) : (
         <>
-          <Button
-            onClick={() => addRecipe(MockDataService.generateRecipe())}
-            disabled={isAddingRecipe || isResettingRecipes}
-          >
-            {isAddingRecipe ? (
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-              />
-            ) : null}{' '}
-            Add recipe
-          </Button>
-          <Button
-            onClick={() => resetRecipes()}
-            disabled={isResettingRecipes || isAddingRecipe}
-          >
-            {isResettingRecipes ? (
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-              />
-            ) : null}{' '}
+          <Link to={routePaths.newRecipe}>
+            <Button>+ New recipe</Button>
+          </Link>
+          <Button onClick={() => resetRecipes()} loading={isResettingRecipes}>
             Reset
           </Button>
 

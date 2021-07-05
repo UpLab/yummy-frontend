@@ -84,7 +84,7 @@ class APIService {
   };
 
   logout = async () => {
-    // AuthManager.logout();
+    AuthManager.logout();
     const refreshToken = AuthManager.getRefreshToken();
     if (refreshToken) {
       return axios({
