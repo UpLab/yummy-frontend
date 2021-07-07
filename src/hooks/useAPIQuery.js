@@ -12,6 +12,7 @@ const useAPIQuery = ({ url, call, debugWaitMS }) => {
     onError: setError,
     debugWaitMS,
     call,
+    defaultLoading: true,
   });
 
   useEffect(() => {

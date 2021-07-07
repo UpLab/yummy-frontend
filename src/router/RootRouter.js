@@ -11,6 +11,7 @@ import Login from '../pages/Login';
 import SignUp from '../pages/SignUp';
 import RecipeDetails from '../pages/RecipeDetails';
 import NewRecipe from '../pages/NewRecipe';
+import EditRecipe from '../pages/EditRecipe';
 import HooksDemo from '../pages/HooksDemo';
 import AuthLayout from '../components/layouts/AuthLayout';
 import paths from './paths';
@@ -49,6 +50,11 @@ const appRoutes = [
   {
     path: paths.newRecipe,
     Component: NewRecipe,
+    exact: true,
+  },
+  {
+    path: paths.editRecipe,
+    Component: EditRecipe,
     exact: true,
   },
 ];

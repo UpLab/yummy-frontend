@@ -1,5 +1,8 @@
-import { useParams } from 'react-router-dom';
-import { Alert } from 'react-bootstrap';
+import { generatePath, Link, useParams } from 'react-router-dom';
+import { Alert, Button } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPencilAlt } from '@fortawesome/free-solid-svg-icons';
+import routePaths from '../router/paths';
 import RecipeListCard from '../components/recipe/RecipeListCard';
 import useAPIQuery from '../hooks/useAPIQuery';
 import APIService from '../services/APIService';
@@ -24,7 +27,15 @@ export default function RecipeDetails() {
   }
   return (
     <p>
-      <h1>Recipe Details</h1>
+      <h1>
+        {recipe.name}{' '}
+        <Link to={generatePath(routePaths.editRecipe, { id: recipe._id })}>
+          <Button size="sm" variant="outline-primary">
+            <FontAwesomeIcon icon={faPencilAlt} />
+          </Button>
+        </Link>
+      </h1>
+
       <RecipeListCard recipe={recipe} />
       <pre>{JSON.stringify(recipe, null, 2)}</pre>
     </p>

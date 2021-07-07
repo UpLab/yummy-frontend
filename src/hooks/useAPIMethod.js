@@ -16,8 +16,9 @@ const useAPIMethod = ({
   onComplete = noop,
   onError = noop,
   debugWaitMS,
+  defaultLoading = false,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(defaultLoading);
 
   const callbacksRef = useRef({
     onComplete,
@@ -34,19 +35,19 @@ const useAPIMethod = ({
   }, [onComplete, onError, call]);
 
   const fn = useCallback(
-    async (data) => {
+    async (...args) => {
       setIsLoading(true);
       if (debugWaitMS) await wait(debugWaitMS);
       try {
         if (typeof callbacksRef.current.call === 'function') {
-          const result = await callbacksRef.current.call(data);
+          const result = await callbacksRef.current.call(...args);
           await callbacksRef.current.onComplete(result);
           return result;
         }
         const result = await axios({
           method,
           url,
-          data,
+          data: args[0],
         });
         await callbacksRef.current.onComplete(result.data);
         return result.data;
