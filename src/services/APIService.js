@@ -14,7 +14,7 @@ class APIService {
   #injectResponseMessageToError = (error) => {
     const message = error.response?.data?.error;
     // eslint-disable-next-line no-param-reassign
-    if (message) error.message = message;
+    if (typeof message === 'string') error.message = message;
   };
 
   #fetch = async (params) => {
@@ -52,6 +52,7 @@ class APIService {
           return retryData;
         }
       } else {
+        this.#injectResponseMessageToError(error);
         throw error;
       }
     }
@@ -98,33 +99,23 @@ class APIService {
   };
 
   login = async ({ email, password }) => {
-    try {
-      const data = await this.#fetch({
-        url: '/api/auth/login',
-        method: 'post',
-        data: { email, password },
-      });
-      const { accessToken, refreshToken } = data;
-      // AuthManager.login({ accessToken, refreshToken });
-      AuthManager.login({ accessToken, refreshToken });
-    } catch (error) {
-      this.#injectResponseMessageToError(error);
-      throw error;
-    }
+    const data = await this.#fetch({
+      url: '/api/auth/login',
+      method: 'post',
+      data: { email, password },
+    });
+    const { accessToken, refreshToken } = data;
+    // AuthManager.login({ accessToken, refreshToken });
+    AuthManager.login({ accessToken, refreshToken });
   };
 
   createAccount = async ({ email, password }) => {
-    try {
-      await this.#fetch({
-        url: '/api/auth/register',
-        method: 'post',
-        data: { email, password },
-      });
-      await this.login({ email, password });
-    } catch (error) {
-      this.#injectResponseMessageToError(error);
-      throw error;
-    }
+    await this.#fetch({
+      url: '/api/auth/register',
+      method: 'post',
+      data: { email, password },
+    });
+    await this.login({ email, password });
   };
 
   getRecipeList = async () => {

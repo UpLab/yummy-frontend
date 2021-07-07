@@ -44,11 +44,11 @@ export default function EditRecipe() {
   });
 
   if (isLoading && !recipe) return <div>Loading...</div>;
-  if (!recipe) {
-    return <Alert variant="danger">Recipe not found</Alert>;
-  }
   if (!recipe && error && !isLoading) {
     return <Alert variant="danger">{error}</Alert>;
+  }
+  if (!recipe) {
+    return <Alert variant="danger">Recipe not found</Alert>;
   }
 
   return (
