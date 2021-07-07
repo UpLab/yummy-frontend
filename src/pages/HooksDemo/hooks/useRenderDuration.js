@@ -12,7 +12,6 @@ const useRenderDuration = () => {
     // console.log('useEffect called');
     updateRenderDuration();
     const id = setInterval(() => {
-      console.log(`interval ${id}`);
       updateRenderDuration();
     }, 1000);
     // console.log(`initialized new interval with id ${id}`);

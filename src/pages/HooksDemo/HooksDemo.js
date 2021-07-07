@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import Counter from './components/Counter';

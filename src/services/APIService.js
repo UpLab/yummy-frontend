@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // post '/api/auth/register'
 // post '/api/auth/token'
 // post '/api/auth/logout'
