@@ -1,6 +1,7 @@
 import { Formik, Form as FormikForm } from 'formik';
 import * as yup from 'yup';
 import { useRef } from 'react';
+import { Col, Row } from 'react-bootstrap';
 import Button from '../common/Button';
 import FormikFormControl from '../formik/FormikFormControl';
 import FormikTextareaField from '../formik/FormikTextareaField';
@@ -80,38 +81,51 @@ export default function RecipeForm({
               required
             />
           </FormGroup>
-          <FormGroup label="Featured Image URL">
-            <FormikFormControl
-              type="url"
-              name="featuredImage"
-              placeholder="https://website.com/image.png"
-              required
-            />
-          </FormGroup>
-          <FormikInputArray
-            name="images"
-            label="Images"
-            formControlProps={{
-              placeholder: 'https://website.com/image.png',
-            }}
-            addItemButtonLabel="+ Add image"
-          />
-          <FormGroup label="Cooking Time (min)">
-            <FormikFormControl
-              min={COOK_TIME_MINUTES_MIN}
-              type="number"
-              name="cookTimeMinutes"
-              required
-            />
-          </FormGroup>
-          <FormGroup label="Servings">
-            <FormikFormControl
-              type="number"
-              name="servings"
-              required
-              min={SERVINGS_MIN}
-            />
-          </FormGroup>
+          <Row>
+            <Col>
+              <FormGroup label="Featured Image URL">
+                <FormikFormControl
+                  type="url"
+                  name="featuredImage"
+                  placeholder="https://website.com/image.png"
+                  required
+                />
+              </FormGroup>
+            </Col>
+            <Col>
+              <FormikInputArray
+                name="images"
+                label="Images"
+                formControlProps={{
+                  placeholder: 'https://website.com/image.png',
+                }}
+                addItemButtonLabel="+ Add image"
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <FormGroup label="Cooking Time (min)">
+                <FormikFormControl
+                  min={COOK_TIME_MINUTES_MIN}
+                  type="number"
+                  name="cookTimeMinutes"
+                  required
+                />
+              </FormGroup>
+            </Col>
+            <Col>
+              <FormGroup label="Servings">
+                <FormikFormControl
+                  type="number"
+                  name="servings"
+                  required
+                  min={SERVINGS_MIN}
+                />
+              </FormGroup>
+            </Col>
+          </Row>
+
           <FormikInputArray
             name="instructions"
             label="Instructions"

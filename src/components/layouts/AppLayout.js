@@ -7,7 +7,7 @@ import logoSrc from '../../assets/logo.svg';
 export default function AppLayout({ children }) {
   return (
     <>
-      <Navbar bg="light" expand="lg">
+      <Navbar bg="white" expand="lg">
         <Container>
           <Navbar.Brand as={Link} to={paths.home}>
             <img
@@ -20,7 +20,12 @@ export default function AppLayout({ children }) {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ml-auto">
-              <Button onClick={() => AuthManager.logout()}>Logout</Button>
+              <Button
+                variant="outline-primary"
+                onClick={() => AuthManager.logout()}
+              >
+                Logout
+              </Button>
             </Nav>
           </Navbar.Collapse>
         </Container>

@@ -1,6 +1,7 @@
 import { Nav, Navbar, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import paths from '../../router/paths';
+import logoSrc from '../../assets/logo.svg';
 
 export default function AuthLayout({ children }) {
   return (
@@ -8,7 +9,12 @@ export default function AuthLayout({ children }) {
       <Navbar bg="light" expand="lg">
         <Container>
           <Navbar.Brand as={Link} to={paths.home}>
-            Yummy
+            <img
+              src={logoSrc}
+              height={40}
+              className="img-responsive"
+              alt="YUMMY"
+            />
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">

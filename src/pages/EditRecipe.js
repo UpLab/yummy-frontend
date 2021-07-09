@@ -6,6 +6,7 @@ import useAPIMethod from '../hooks/useAPIMethod';
 import routePaths from '../router/paths';
 import RecipeForm from '../components/recipe/RecipeForm';
 import useAPIQuery from '../hooks/useAPIQuery';
+import PageTitle from '../components/common/PageTitle';
 
 /*
   Front-end:
@@ -53,7 +54,7 @@ export default function EditRecipe() {
 
   return (
     <div className="mb-3">
-      <h1>Edit recipe</h1>
+      <PageTitle title="Edit recipe" />
       <RecipeForm
         initialValues={recipe}
         onSubmit={async (values) => {

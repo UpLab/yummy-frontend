@@ -4,6 +4,7 @@ import APIService from '../services/APIService';
 import useAPIMethod from '../hooks/useAPIMethod';
 import routePaths from '../router/paths';
 import RecipeForm from '../components/recipe/RecipeForm';
+import PageTitle from '../components/common/PageTitle';
 
 export default function NewRecipe() {
   const [addRecipe] = useAPIMethod({
@@ -14,7 +15,7 @@ export default function NewRecipe() {
   const history = useHistory();
   return (
     <div className="mb-3">
-      <h1>Add new recipe</h1>
+      <PageTitle title="Add new recipe" />
       <RecipeForm
         onSubmit={async (values) => {
           await addRecipe(values);

@@ -1,65 +1,47 @@
 /* eslint-disable no-nested-ternary */
 import React from 'react';
 import { Alert, Button } from 'react-bootstrap';
-import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import routePaths from '../router/paths';
 import RecipeListGrid from '../components/recipe/RecipeListGrid';
 import useAPIQuery from '../hooks/useAPIQuery';
-import useAPIMethod from '../hooks/useAPIMethod';
 import APIService from '../services/APIService';
+import PageTitle from '../components/common/PageTitle';
 
 export default function Home() {
   const {
     data: recipeList,
     isLoading,
     error,
-    refetch: refetchRecipes,
   } = useAPIQuery({
     call: APIService.getRecipeList,
   });
 
-  // const [addRecipe, isAddingRecipe] = useAPIMethod({
-  //   debugWaitMS: 1000,
-  //   call: APIService.addRecipe,
-  //   onComplete: refetchRecipes,
-  //   onError: (msg) => {
-  //     toast.error(msg);
-  //   },
-  // });
-
-  const [resetRecipes, isResettingRecipes] = useAPIMethod({
-    debugWaitMS: 500,
-    call: APIService.resetRecipes,
-    onComplete: refetchRecipes,
-    onError: (msg) => {
-      toast.error(msg);
-    },
-  });
-
   return (
     <>
-      <h1>Recipe List</h1>
+      <PageTitle
+        title="Recipes"
+        right={
+          <Link to={routePaths.newRecipe}>
+            <Button>+ New recipe</Button>
+          </Link>
+        }
+      />
       {isLoading && !recipeList?.length ? (
         <div>Loading...</div>
       ) : (
         <>
-          <Link to={routePaths.newRecipe}>
-            <Button>+ New recipe</Button>
-          </Link>
-          <Button onClick={() => resetRecipes()} loading={isResettingRecipes}>
-            Reset
-          </Button>
-
           {error ? <Alert variant="danger">{error}</Alert> : null}
           {Array.isArray(recipeList) ? (
             <>
               {recipeList.length ? (
                 <RecipeListGrid recipeList={recipeList} />
               ) : (
-                <div>
-                  No recipes in your list. Please click on "Add recipe" button
-                </div>
+                <Alert variant="info" className="mt-3">
+                  No recipes in your list. Please click{' '}
+                  <Link to={routePaths.newRecipe}>here</Link> to create new
+                  recipe
+                </Alert>
               )}
             </>
           ) : null}
