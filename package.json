@@ -12,6 +12,7 @@
     "@testing-library/user-event": "13.1.9",
     "axios": "0.21.1",
     "bootstrap": "4.6.0",
+    "date-fns": "^2.22.1",
     "events": "3.3.0",
     "faker": "5.5.3",
     "formik": "2.2.9",
