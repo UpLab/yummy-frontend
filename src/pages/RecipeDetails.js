@@ -15,45 +15,54 @@ import {
   faTrash,
   faUtensils,
 } from '@fortawesome/free-solid-svg-icons';
+import { useMutation, gql } from '@apollo/client';
+
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import Button from '../components/common/Button';
 import routePaths from '../router/paths';
-import useAPIQuery from '../hooks/useAPIQuery';
-import APIService from '../services/APIService';
-import useAPIMethod from '../hooks/useAPIMethod';
 import PageTitle from '../components/common/PageTitle';
+import useRecipeByIdQuery from '../hooks/useRecipeById';
+
+const deleteRecipeMutation = gql`
+  mutation deleteRecipe($recipeId: ID!) {
+    deleteRecipe(recipeId: $recipeId)
+  }
+`;
 
 export default function RecipeDetails() {
   const params = useParams();
 
   const {
-    data: recipe,
-    isLoading,
+    recipe,
+    loading: isLoading,
     error,
-  } = useAPIQuery({
-    call: () => APIService.getRecipeById(params.id),
-  });
+  } = useRecipeByIdQuery(params.id, { fetchPolicy: 'cache-and-network' });
 
   const history = useHistory();
 
-  const [deleteRecipe, isDeletingRecipe] = useAPIMethod({
-    debugWaitMS: 1000,
-    call: APIService.deleteRecipeById,
-    onError: toast.error,
-    onComplete: () => {
-      toast.success('Recipe deleted successfully');
-      history.push(routePaths.myRecipes);
-    },
-  });
+  const [deleteRecipe, { loading: isDeletingRecipe }] = useMutation(
+    deleteRecipeMutation,
+    {
+      variables: { recipeId: params.id },
+      onCompleted: () => {
+        toast.success('Recipe deleted successfully');
+        history.push(routePaths.myRecipes);
+      },
+      onError: (e) => {
+        toast.error(e.message);
+      },
+    }
+  );
 
   if (isLoading && !recipe) return <div>Loading...</div>;
   if (!recipe && error && !isLoading) {
-    return <Alert variant="danger">{error}</Alert>;
+    return <Alert variant="danger">{error.message}</Alert>;
   }
   if (!recipe) {
     return <Alert variant="danger">Recipe not found</Alert>;
   }
+
   return (
     <>
       <Breadcrumb className="mt-3">
@@ -83,7 +92,7 @@ export default function RecipeDetails() {
                   'Are you sure you want to delete this recipe?'
                 );
                 if (confirmed) {
-                  deleteRecipe(recipe._id);
+                  deleteRecipe();
                 }
               }}
               loading={isDeletingRecipe}
@@ -111,13 +120,12 @@ export default function RecipeDetails() {
                 <br />
                 <FontAwesomeIcon icon={faUtensils} /> {recipe.servings}
                 <br />
-                <small className="text-muted float-right">
-                  Last update:{' '}
-                  {format(
-                    new Date(recipe.updatedAt || recipe.createdAt),
-                    'dd MMM yyyy'
-                  )}
-                </small>
+                {recipe.updatedAt ? (
+                  <small className="text-muted float-right">
+                    Last update:{' '}
+                    {format(new Date(recipe.updatedAt), 'dd MMM yyyy')}
+                  </small>
+                ) : null}
               </Card.Body>
             </Card>
             {Array.isArray(recipe.ingredients) && recipe.ingredients.length ? (
@@ -139,14 +147,12 @@ export default function RecipeDetails() {
         </Row>
         <div className="mt-3">
           <h2>Instructions</h2>
-          <p className="mt-3">
-            <ol>
-              {recipe.instructions.map((step, i) => (
-                // eslint-disable-next-line react/no-array-index-key
-                <li key={i}>{step}</li>
-              ))}
-            </ol>
-          </p>
+          <ol className="mt-3">
+            {recipe.instructions.map((step, i) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <li key={i}>{step}</li>
+            ))}
+          </ol>
           {recipe.notes ? (
             <Alert variant="info">
               <b>Note: </b>

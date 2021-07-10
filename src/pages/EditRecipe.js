@@ -1,47 +1,38 @@
 import { toast } from 'react-toastify';
-import { useHistory, useParams } from 'react-router-dom';
+import { generatePath, useHistory, useParams } from 'react-router-dom';
 import { Alert } from 'react-bootstrap';
-import APIService from '../services/APIService';
-import useAPIMethod from '../hooks/useAPIMethod';
+import { useMutation, gql } from '@apollo/client';
 import routePaths from '../router/paths';
 import RecipeForm from '../components/recipe/RecipeForm';
-import useAPIQuery from '../hooks/useAPIQuery';
 import PageTitle from '../components/common/PageTitle';
+import useRecipeByIdQuery from '../hooks/useRecipeById';
 
-/*
-  Front-end:
-  - add updateRecipe method to APIService - DONE
-  - add EditRecipe page to the router - DONE
-  - get id from router params - DONE
-  - add edit recipe button to the recipe page - DONE
-  - fetch recipe data for the form initial values - DONE
-
-  Back-end:
-  - add POST method for updating recipe by id
-  - add validation
-  - add authorization
-*/
+const updateRecipeMutation = gql`
+  mutation updateRecipe($recipeId: ID!, $input: RecipeUpdateInput!) {
+    updateRecipe(recipeId: $recipeId, input: $input) {
+      _id
+    }
+  }
+`;
 
 export default function EditRecipe() {
   const { id: recipeId } = useParams();
 
   const history = useHistory();
 
-  const [updateRecipe] = useAPIMethod({
-    debugWaitMS: 1000,
-    call: APIService.updateRecipe,
-    onError: toast.error,
-    onComplete: () => {
-      toast.success('Recipe updated successfully! 🎉');
-      history.push(routePaths.home);
+  const { recipe, loading: isLoading, error } = useRecipeByIdQuery(recipeId);
+
+  const [updateRecipe] = useMutation(updateRecipeMutation, {
+    variables: {
+      recipeId,
     },
-  });
-  const {
-    data: recipe,
-    isLoading,
-    error,
-  } = useAPIQuery({
-    call: () => APIService.getRecipeById(recipeId),
+    onError: (e) => {
+      toast.error(e.message);
+    },
+    onCompleted: () => {
+      toast.success('Recipe updated successfully! 🎉');
+      history.push(generatePath(routePaths.recipeDetails, { id: recipeId }));
+    },
   });
 
   if (isLoading && !recipe) return <div>Loading...</div>;
@@ -58,7 +49,7 @@ export default function EditRecipe() {
       <RecipeForm
         initialValues={recipe}
         onSubmit={async (values) => {
-          await updateRecipe(recipeId, values);
+          await updateRecipe({ variables: { input: values } });
         }}
         submitButtonTitle="Save"
       />
