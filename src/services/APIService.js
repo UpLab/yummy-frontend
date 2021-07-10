@@ -61,7 +61,7 @@ class APIService {
   #tryRefreshingTokenOrLogoutAndThrow = async () => {
     try {
       console.log('Refreshing token');
-      await this.#refreshToken();
+      await this.refreshToken();
       console.log('Token successfully refreshed');
     } catch (error) {
       console.log('Error refreshing token', error);
@@ -72,7 +72,7 @@ class APIService {
     }
   };
 
-  #refreshToken = async () => {
+  refreshToken = async () => {
     const refreshToken = AuthManager.getRefreshToken();
     const {
       data: { accessToken },

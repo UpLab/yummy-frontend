@@ -2,21 +2,32 @@
 import React from 'react';
 import { Alert, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useQuery, gql } from '@apollo/client';
 import routePaths from '../router/paths';
 import RecipeListGrid from '../components/recipe/RecipeListGrid';
-import useAPIQuery from '../hooks/useAPIQuery';
-import APIService from '../services/APIService';
 import PageTitle from '../components/common/PageTitle';
+import { getFirstResult } from '../utils/graphql';
 
-export default function Home() {
-  const {
-    data: recipeList,
-    isLoading,
-    error,
-  } = useAPIQuery({
-    call: APIService.getRecipeList,
+const userRecipesQuery = gql`
+  query userRecipes {
+    userRecipes {
+      _id
+      name
+      featuredImage
+    }
+  }
+`;
+
+function useUserRecipes() {
+  const { loading, error, data, ...rest } = useQuery(userRecipesQuery, {
+    fetchPolicy: 'cache-and-network',
   });
 
+  return [getFirstResult(data) || [], { loading, error, ...rest }];
+}
+
+export default function Home() {
+  const [recipeList, { loading: isLoading, error }] = useUserRecipes();
   return (
     <>
       <PageTitle
@@ -31,7 +42,7 @@ export default function Home() {
         <div>Loading...</div>
       ) : (
         <>
-          {error ? <Alert variant="danger">{error}</Alert> : null}
+          {error ? <Alert variant="danger">{error.message}</Alert> : null}
           {Array.isArray(recipeList) ? (
             <>
               {recipeList.length ? (
