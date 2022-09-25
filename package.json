@@ -14,7 +14,7 @@
     "apollo-link-token-refresh": "^0.3.2",
     "axios": "0.21.1",
     "bootstrap": "4.6.0",
-    "date-fns": "^2.22.1",
+    "date-fns": "2.29.3",
     "events": "3.3.0",
     "faker": "5.5.3",
     "formik": "2.2.9",
